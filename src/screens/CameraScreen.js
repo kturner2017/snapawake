@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Platform } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { theme } from '../theme';
 
@@ -7,6 +7,44 @@ export function CameraScreen({ alarm, onPhotoTaken, onCancel }) {
   const [permission, requestPermission] = useCameraPermissions();
   const [capturing, setCapturing] = useState(false);
   const cameraRef = useRef(null);
+
+  // Web fallback: use file input to pick a photo
+  if (Platform.OS === 'web') {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.webWrapper}>
+          <Text style={styles.webIcon}>📷</Text>
+          <Text style={styles.webTitle}>Show your {alarm.targetObject}</Text>
+          <Text style={styles.webHint}>Upload a photo of your {alarm.targetObject} to dismiss the alarm.</Text>
+
+          <label style={webInputLabelStyle}>
+            Choose Photo
+            <input
+              type="file"
+              accept="image/*"
+              capture="environment"
+              style={{ display: 'none' }}
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                setCapturing(true);
+                const reader = new FileReader();
+                reader.onload = () => {
+                  const base64 = reader.result.split(',')[1];
+                  onPhotoTaken(base64);
+                };
+                reader.readAsDataURL(file);
+              }}
+            />
+          </label>
+
+          <TouchableOpacity onPress={onCancel} style={styles.cancelLink}>
+            <Text style={styles.cancelLinkText}>Go back</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   if (!permission) {
     return <View style={styles.container} />;
@@ -74,6 +112,20 @@ export function CameraScreen({ alarm, onPhotoTaken, onCancel }) {
   );
 }
 
+// Inline style for web file input label (can't use StyleSheet for HTML elements)
+const webInputLabelStyle = {
+  display: 'inline-block',
+  backgroundColor: '#4ade80',
+  color: '#0d1510',
+  fontWeight: '700',
+  fontSize: 16,
+  padding: '14px 32px',
+  borderRadius: 20,
+  cursor: 'pointer',
+  marginTop: 24,
+  textAlign: 'center',
+};
+
 const C_SIZE = 24;
 const cornerStyle = {
   position: 'absolute',
@@ -112,4 +164,11 @@ const styles = StyleSheet.create({
   permText: { color: theme.colors.text, fontSize: theme.font.md, textAlign: 'center', padding: theme.spacing.xl },
   permBtn: { backgroundColor: theme.colors.primary, padding: theme.spacing.md, borderRadius: theme.radius.md, marginHorizontal: theme.spacing.xl },
   permBtnText: { color: theme.colors.bg, textAlign: 'center', fontWeight: '700' },
+  // Web styles
+  webWrapper: { flex: 1, backgroundColor: theme.colors.bg, alignItems: 'center', justifyContent: 'center', padding: theme.spacing.xl, gap: theme.spacing.md },
+  webIcon: { fontSize: 72 },
+  webTitle: { color: theme.colors.primary, fontSize: theme.font.xl, fontWeight: '700', textAlign: 'center' },
+  webHint: { color: theme.colors.textMuted, fontSize: theme.font.sm, textAlign: 'center', lineHeight: 22 },
+  cancelLink: { marginTop: theme.spacing.lg },
+  cancelLinkText: { color: theme.colors.textMuted, fontSize: theme.font.sm },
 });

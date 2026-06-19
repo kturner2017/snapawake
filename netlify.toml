@@ -1,7 +1,7 @@
 [build]
   functions = "netlify/functions"
-  command = ""
-  publish = "public"
+  command = "npx expo export -p web"
+  publish = "dist"
 
 [functions]
   node_bundler = "esbuild"
