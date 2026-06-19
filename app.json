@@ -1,0 +1,39 @@
+{
+  "expo": {
+    "name": "SnapAwake",
+    "slug": "snapawake",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0d1510"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.yourname.snapawake",
+      "infoPlist": {
+        "NSCameraUsageDescription": "SnapAwake needs camera access to verify you've physically gotten out of bed.",
+        "NSPhotoLibraryUsageDescription": "SnapAwake may save your verification photos."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0d1510"
+      },
+      "package": "com.yourname.snapawake",
+      "permissions": ["CAMERA"]
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "SnapAwake needs camera access to verify you've physically gotten out of bed."
+        }
+      ]
+    ]
+  }
+}
